@@ -9,6 +9,7 @@ There are 2 ways you can run the code. It usually takes around 5-10 seconds for 
 
 ### 1. Testing it on CodePen
 [CodePen Link](https://codepen.io/pilcrowOnPaper/pen/WNjqGMW)
+
 After changing the values (if needed), click the "reload" button.
 ### 2. Hosting the website locally
 This is built on Svelte. 
