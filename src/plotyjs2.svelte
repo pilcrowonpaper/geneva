@@ -1,12 +1,24 @@
-js<script>
+<script>
     import { onMount } from "svelte";
-    let nx_value = 20;
-    let ny_value = 20;
-    let nz_value = 20;
-    let L_value = 4;
-    let V_value = L_value ** 3;
+    // L_value: size of the axis
+    let L_value = 15;
+    // factor: how many points per 1 unit distance
+    let factor = 4;
+    let n_value = 1;
+    let l_value = 0;
+    let m_value = 0;
+    // minimum_percent: minimum PDF to render in
+    let minimum_percent = 0.00001;
+    // you'll need to change the L_value accordingly when changing the value below
+    let bohr_radius_value = 0.529177;
 
-    //1. create a function that solves the (assodiated) Laguerre polynomial
+    console.log("n = " + n_value);
+    console.log("l = " + l_value);
+    console.log("m = " + m_value);
+    console.log("minimum percent = " + minimum_percent);
+    console.log("bohr radius = " + bohr_radius_value);
+
+    // the (assodiated) Laguerre polynomial
     const laguerrePolynomial = (n, k, x) => {
         const equation = (m) => {
             return (
@@ -21,7 +33,7 @@ js<script>
         return sigma(equation, 0, n);
     };
 
-    //1-1. a function that does sigma
+    // sigma
     const sigma = (equation, i, n) => {
         let sum = 0;
         while (i <= n) {
@@ -31,7 +43,7 @@ js<script>
         return sum;
     };
 
-    //1-1a. a function that factorialize input
+    // factorialize input
     const factorialize = (x) => {
         if (x < 0) {
             return -1;
@@ -42,19 +54,30 @@ js<script>
         }
     };
 
-    //2. a function that solces the spherical harmonics
+    // the spherical harmonics
     const sphericalHarmonics = (l, m, theta, phi) => {
-        return (
-            Math.sqrt(
-                ((2 * l + 1) * factorialize(l - m)) /
-                    (4 * Math.PI * factorialize(l + m))
-            ) *
-            legendrePolynomial(l, m, Math.cos(theta)) *
-            Math.E ** (m * phi)
-        );
+        if (m > 0) {
+            return (
+                Math.sqrt(
+                    ((2 * l + 1) * factorialize(l - m)) /
+                        (4 * Math.PI * factorialize(l + m))
+                ) *
+                legendrePolynomial(l, m, Math.cos(theta)) *
+                Math.sin(m * phi)
+            );
+        } else {
+            return (
+                Math.sqrt(
+                    ((2 * l + 1) * factorialize(l - m)) /
+                        (4 * Math.PI * factorialize(l + m))
+                ) *
+                legendrePolynomial(l, m, Math.cos(theta)) *
+                Math.cos(m * phi)
+            );
+        }
     };
 
-    //2.1 create a function that solves the Legendre polynomials
+    //the Legendre polynomials
     const legendrePolynomial = (l, m, x) => {
         const equation = (x) => {
             return (x ** 2 - 1) ** l;
@@ -65,7 +88,7 @@ js<script>
             highOrderDerivative(equation, l + m, x)
         );
     };
-    //2.1 a function that does nth deriviation
+    // nth deriviation
     const highOrderDerivative = (equation, order, x) => {
         let i = 1;
         let deriviation = equation;
@@ -80,7 +103,7 @@ js<script>
         }
     };
 
-    //2.1a a function that does deriviation
+    // deriviation
     const derivative = (f) => {
         var h = 0.001;
         return function (x) {
@@ -103,9 +126,10 @@ js<script>
         );
     };
 
-    //3.1 the bohr radius, represented by a0
+    // the bohr radius, represented by a0
     const bohrRadius = () => {
-        return 1;
+        //return 1;
+        return bohr_radius_value;
     };
 
     const radius = (x, y, z) => {
@@ -120,50 +144,40 @@ js<script>
         return Math.atan(y / x);
     };
 
-    //2. make function that sets opacity from value
-    function Trace(x, y, z) {
-        let percent = (waveFunction(
-                        2,
-                        1,
-                        0,
-                        radius(x, y, z),
-                        theta(x, y, z),
-                        phi(y, x)
-                    ) ** 2) / 0.0036
-        this.x = [x];
-        this.y = [y];
-        this.z = [z];
-        this.mode = "markers";
-        this.marker = {
-            color: "rgb(66, 135, 245)",
-            size: 5,
-            symbol: "circle",
-            opacity: percent,
-        };
-        this.type = "scatter3d";
-        this.showlegend = false;
-    }
-
-    //1. make function that creates points from [0,0,0] to [1,1,1]
+    // creates points from [-L,-L,-L] to [L,L,L]
     const getTrace = () => {
-        let data = [];
-        let i = -20;
-        while (i < L_value * 5) {
-            let t = -20;
-            while (t < L_value * 5) {
-                let s = -20;
-                while (s < L_value * 5) {
-                    let percent = waveFunction(
-                        2,
-                        1,
-                        0,
-                        radius(i / 5, t / 5, s / 5),
-                        theta(i / 5, t / 5, s / 5),
-                        phi(t / 5, i / 5)
-                    ) ** 2;
-                    //"improve" speed by only finding ones with probability over 0.01
-                    if (percent > 0.0005) {
-                        data.push(new Trace(i / 5, t / 5, s / 5));
+        let data = {
+            x: [],
+            y: [],
+            z: [],
+        };
+        let maximum = 0;
+        let minimum = 1;
+        let i = -1 * L_value * factor;
+        while (i < L_value * factor) {
+            let t = -1 * L_value * factor;
+            while (t < L_value * factor) {
+                let s = -1 * L_value * factor;
+                while (s < L_value * factor) {
+                    let percent =
+                        waveFunction(
+                            n_value,
+                            l_value,
+                            m_value,
+                            radius(i / factor, t / factor, s / factor),
+                            theta(i / factor, t / factor, s / factor),
+                            phi(t / factor, i / factor)
+                        ) ** 2;
+                    if (percent > minimum_percent) {
+                        data.x.push(i / factor);
+                        data.y.push(t / factor);
+                        data.z.push(s / factor);
+                    }
+                    if (percent > maximum) {
+                        maximum = percent;
+                    }
+                    if (percent < minimum && percent !== 0) {
+                        minimum = percent;
                     }
                     s += 1;
                 }
@@ -171,10 +185,33 @@ js<script>
             }
             i += 1;
         }
+        console.log("plot counts = " + data.x.length);
+        console.log("maximum = " + maximum);
+        console.log("minimum = " + minimum);
         return data;
     };
 
     let graphDiv;
+
+    const newTrace = () => {
+        let object_data = getTrace();
+        let x_data = object_data.x;
+        let y_data = object_data.y;
+        let z_data = object_data.z;
+        return {
+            x: x_data,
+            y: y_data,
+            z: z_data,
+            mode: "markers",
+            marker: {
+                color: "rgb(66, 135, 245)",
+                size: 1,
+                symbol: "circle",
+                opacity: 0.6,
+            },
+            type: "scatter3d",
+        };
+    };
 
     onMount(() => {
         var layout = {
@@ -185,9 +222,8 @@ js<script>
                 t: 0,
             },
         };
-        Plotly.newPlot(graphDiv, getTrace(), layout);
+        Plotly.newPlot(graphDiv, [newTrace()], layout);
     });
 </script>
 
 <div bind:this={graphDiv} class="w-screen h-screen" />
-
