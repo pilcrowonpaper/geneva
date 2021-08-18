@@ -35,7 +35,7 @@
 
     console.log(calculate_wave_function(0,5, 0.5, 0.5))
 
-    //2. make function that sets opacity from value
+    // sets color from value
     function Trace(x, y, z) {
         let percent =
             Math.round((calculate_wave_function(x, y, z) ** 2 / 8) * 1000) /
@@ -58,7 +58,7 @@
         this.showlegend = false;
     }
 
-    //1. make function that creates points from [0,0,0] to [1,1,1]
+    // creates points from [0,0,0] to [1,1,1]
     const getTrace = () => {
         let data = [];
         let i = 1;
@@ -71,7 +71,6 @@
                         Math.round(
                             (calculate_wave_function(i / 20, t / 20, s / 20) ** 2 / 8) * 1000
                         ) / 1000;
-                    //"improve" speed by only finding ones with probability over 0.01
                     if (percent > 0.1) {
                         data.push(new Trace(i / 20, t / 20, s / 20));
                     }
