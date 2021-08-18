@@ -5,10 +5,11 @@
 ^ (n, l, m) = (4, 2, 0)
 
 ## Running the code
-There are 2 ways you can run the code.
+There are 2 ways you can run the code. It usually takes around 5-10 seconds for the graph to appear.
 
 ### 1. Testing it on CodePen
 [CodePen Link](https://codepen.io/pilcrowOnPaper/pen/WNjqGMW)
+After changing the values (if needed), click the "reload" button.
 ### 2. Hosting the website locally
 This is built on Svelte. 
 
