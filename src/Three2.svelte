@@ -82,7 +82,7 @@
 		});
 	};
 
-    let object
+	let object;
 
 	const renderScene = () => {
 		while (scene.children.length > 0) {
@@ -157,8 +157,10 @@
 
 	const animate = () => {
 		requestAnimationFrame(animate);
-        object.rotation.x += 0.01;
-        object.rotation.y += 0.01;
+		if (rotate) {
+			object.rotation.x += 0.01;
+			object.rotation.y += 0.01;
+		}
 
 		renderer.render(scene, camera);
 	};
@@ -169,6 +171,8 @@
 			renderScene();
 		}, 10);
 	};
+
+	let rotate = true
 </script>
 
 <div
@@ -222,6 +226,12 @@
 				<div class="font-semibold text-gray-800">minimum probability</div>
 				<div class="text-sm text-gray-400 -mt-1">(shouldn't touch it)</div>
 				<input type="number" class="w-20 appearance-none mt-1" bind:value={minimum_percent} />
+			</div>
+		</div>
+		<div class="flex flex-col gap-3">
+			<div class="flex flex-row place-items-center gap-2">
+				<input type="checkbox" bind:checked={rotate} />
+				<div class="font-semibold text-gray-800">animate</div>
 			</div>
 		</div>
 		<div class="flex flex-col">
