@@ -1,4 +1,4 @@
-import triTable from "./triTable.json";
+import { triTable } from "./triTable";
 
 export const marchingCubes = (pointsObj, max_x, max_y, max_z) => {
     let meshPoints = [];
